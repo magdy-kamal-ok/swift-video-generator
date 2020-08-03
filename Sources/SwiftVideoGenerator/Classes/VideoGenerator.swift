@@ -43,7 +43,7 @@ public class VideoGenerator: NSObject {
   /// public property to set a multiple type video's background color
   public static var videoBackgroundColor: UIColor = UIColor.black
   
-  /// public property to set the AVAssetExportPreset 
+  /// public property to set the AVAssetExportPreset
   public static var presetName: String?
   
   /// public property to set a width to scale the image to before generating a video (used only with .single type video generation; preferred scale: 800/1200)
@@ -269,7 +269,7 @@ public class VideoGenerator: NSObject {
   ///   - fileName: the name of the finished merged video file
   ///   - success: success block - returns the finished video url path
   ///   - failure: failure block - returns the error that caused the failure
-  open class func mergeMovies(videoURLs: [URL], outcome: @escaping (Result<URL, Error>) -> Void) {
+    open class func mergeMovies(videoURLs: [URL], outputPathUrl: URL?, outcome: @escaping (Result<URL, Error>) -> Void) {
     let acceptableVideoExtensions = ["mov", "mp4", "m4v"]
     let _videoURLs = videoURLs.filter({ !$0.absoluteString.contains(".DS_Store") && acceptableVideoExtensions.contains($0.pathExtension.lowercased()) })
     
@@ -290,9 +290,9 @@ public class VideoGenerator: NSObject {
       }
     }
     
-    if let documentsPath = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).first {
+    if let outputPathUrl = outputPathUrl {
       /// create a path to the video file
-      completeMoviePath = URL(fileURLWithPath: documentsPath).appendingPathComponent("\(VideoGenerator.fileName).m4v")
+      completeMoviePath = URL(fileURLWithPath: outputPathUrl.path).appendingPathComponent("\(UUID().uuidString)-\(VideoGenerator.fileName).mp4")
       
       if let completeMoviePath = completeMoviePath {
         if FileManager.default.fileExists(atPath: completeMoviePath.path) {
