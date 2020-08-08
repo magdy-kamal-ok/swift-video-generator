@@ -269,7 +269,7 @@ public class VideoGenerator: NSObject {
   ///   - fileName: the name of the finished merged video file
   ///   - success: success block - returns the finished video url path
   ///   - failure: failure block - returns the error that caused the failure
-    open class func mergeMovies(videoURLs: [URL], outputPathUrl: URL?, outcome: @escaping (Result<URL, Error>) -> Void) {
+    open class func mergeMovies(videoURLs: [URL], outputPathUrl: URL?, maxSizeInMega: Int = 60, outcome: @escaping (Result<URL, Error>) -> Void) {
     let acceptableVideoExtensions = ["mov", "mp4", "m4v"]
     let _videoURLs = videoURLs.filter({ !$0.absoluteString.contains(".DS_Store") && acceptableVideoExtensions.contains($0.pathExtension.lowercased()) })
     
@@ -328,8 +328,7 @@ public class VideoGenerator: NSObject {
               let frameRange = CMTimeRange(start: CMTime(seconds: 0, preferredTimescale: 1), duration: sourceAsset.duration)
               try videoTrack.insertTimeRange(frameRange, of: assetVideoTrack, at: insertTime)
               try audioTrack.insertTimeRange(frameRange, of: assetAudioTrack, at: insertTime)
-              
-              videoTrack.preferredTransform = assetVideoTrack.preferredTransform
+                videoTrack.preferredTransform = assetVideoTrack.preferredTransform
             }
             
             insertTime = insertTime + sourceAsset.duration
@@ -345,7 +344,7 @@ public class VideoGenerator: NSObject {
           exportSession.outputURL = completeMoviePath
           exportSession.outputFileType = AVFileType.mp4
           exportSession.shouldOptimizeForNetworkUse = true
-          
+            exportSession.fileLengthLimit = Int64(1048576 * maxSizeInMega)
           /// try to export the file and handle the status cases
           exportSession.exportAsynchronously(completionHandler: {
             switch exportSession.status {
